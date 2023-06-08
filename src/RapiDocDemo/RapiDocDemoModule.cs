@@ -48,6 +48,7 @@ using Volo.Abp.UI.Navigation;
 using Volo.Abp.UI.Navigation.Urls;
 using Volo.Abp.Validation.Localization;
 using Volo.Abp.VirtualFileSystem;
+using IGeekFan.AspNetCore.RapiDoc;
 
 namespace RapiDocDemo;
 
@@ -141,7 +142,7 @@ public class RapiDocDemoModule : AbpModule
         ConfigureUrls(configuration);
         ConfigureBundles();
         ConfigureAutoMapper(context);
-        ConfigureSwagger(context.Services);
+        ConfigureSwagger(context.Services, configuration);
         ConfigureNavigationServices();
         ConfigureAutoApiControllers();
         ConfigureVirtualFiles(hostingEnvironment);
@@ -253,8 +254,25 @@ public class RapiDocDemoModule : AbpModule
         });
     }
 
-    private void ConfigureSwagger(IServiceCollection services)
+    private void ConfigureSwagger(IServiceCollection services, IConfiguration configuration)
     {
+        Configure<RapiDocOptions>(options =>
+        {
+            options.RoutePrefix = "rapi-doc";//access url
+
+            // optional
+            options.GenericRapiConfig.RenderStyle = "focused";// view | read | focused
+            options.GenericRapiConfig.Theme = "dark"; // light | dark
+            options.GenericRapiConfig.SchemaStyle = "tree"; // table | tree
+            options.GenericRapiConfig.ShowMethodInNavBar = "as-colored-text"; // false | as-plain-text | as-colored-text | as-colored-block
+            options.GenericRapiConfig.UsePathInNavBar = true;
+
+            // required
+            options.SwaggerEndpoint("/swagger/v1/swagger.json", "RapiDocDemo API");
+            options.InjectJavascript("/swagger/ui/abp.js");
+            options.InjectJavascript("/rapi-doc/abp.rapi-doc.js");
+        });
+
         services.AddAbpSwaggerGen(
             options =>
             {
@@ -263,6 +281,33 @@ public class RapiDocDemoModule : AbpModule
                 options.CustomSchemaIds(type => type.FullName);
             }
         );
+        
+        // // ApiHost
+        // services.AddAbpSwaggerGenWithOAuth(
+        //     authority: configuration["App:SelfUrl"],
+        //     scopes: new Dictionary<string, string>()
+        //     {
+        //         { "RapiDocDemo", "RapiDocDemo API" }
+        //     },
+        //     options =>
+        //     {
+        //         options.SwaggerDoc("v1", new OpenApiInfo { Title = "RapiDocDemo API", Version = "v1" });
+        //         options.DocInclusionPredicate((docName, description) => true);
+        //         options.CustomSchemaIds(type => type.FullName);
+
+        //         // https://rapidocweb.com/api.html#vendor-extensions
+        //         var oauth2SecurityScheme = options.SwaggerGeneratorOptions.SecuritySchemes.GetOrDefault("oauth2");
+        //         if (oauth2SecurityScheme != null)
+        //         {
+        //             oauth2SecurityScheme.Extensions = new Dictionary<string, Microsoft.OpenApi.Interfaces.IOpenApiExtension>()
+        //             {
+        //                 {"x-client-id", new Microsoft.OpenApi.Any.OpenApiString("RapiDocDemo_RapiDoc")},
+        //                 // {"x-client-secret", new Microsoft.OpenApi.Any.OpenApiString("1q2w3e")},
+        //                 {"x-default-scopes", new Microsoft.OpenApi.Any.OpenApiString("RapiDocDemo")},
+        //             };
+        //         }
+        //     }
+        // );
     }
 
     private void ConfigureAutoMapper(ServiceConfigurationContext context)
@@ -335,6 +380,7 @@ public class RapiDocDemoModule : AbpModule
         {
             options.SwaggerEndpoint("/swagger/v1/swagger.json", "RapiDocDemo API");
         });
+        app.UseRapiDocUI();
 
         app.UseAuditing();
         app.UseAbpSerilogEnrichers();
