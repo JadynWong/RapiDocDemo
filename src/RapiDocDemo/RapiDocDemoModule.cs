@@ -273,6 +273,7 @@ public class RapiDocDemoModule : AbpModule
             options.InjectJavascript("/rapi-doc/abp.rapi-doc.js");
         });
 
+        // For MVC
         services.AddAbpSwaggerGen(
             options =>
             {
@@ -281,33 +282,33 @@ public class RapiDocDemoModule : AbpModule
                 options.CustomSchemaIds(type => type.FullName);
             }
         );
-        
-        // // ApiHost
-        // services.AddAbpSwaggerGenWithOAuth(
-        //     authority: configuration["App:SelfUrl"],
-        //     scopes: new Dictionary<string, string>()
-        //     {
-        //         { "RapiDocDemo", "RapiDocDemo API" }
-        //     },
-        //     options =>
-        //     {
-        //         options.SwaggerDoc("v1", new OpenApiInfo { Title = "RapiDocDemo API", Version = "v1" });
-        //         options.DocInclusionPredicate((docName, description) => true);
-        //         options.CustomSchemaIds(type => type.FullName);
 
-        //         // https://rapidocweb.com/api.html#vendor-extensions
-        //         var oauth2SecurityScheme = options.SwaggerGeneratorOptions.SecuritySchemes.GetOrDefault("oauth2");
-        //         if (oauth2SecurityScheme != null)
-        //         {
-        //             oauth2SecurityScheme.Extensions = new Dictionary<string, Microsoft.OpenApi.Interfaces.IOpenApiExtension>()
-        //             {
+        // For HttpApi.Hostc. If you are using HttpApi.Host, uncomment it and comment out the MVC section.
+        //services.AddAbpSwaggerGenWithOAuth(
+        //    authority: configuration["App:SelfUrl"],
+        //    scopes: new Dictionary<string, string>()
+        //    {
+        //         { "RapiDocDemo", "RapiDocDemo API" }
+        //    },
+        //    options =>
+        //    {
+        //        options.SwaggerDoc("v1", new OpenApiInfo { Title = "RapiDocDemo API", Version = "v1" });
+        //        options.DocInclusionPredicate((docName, description) => true);
+        //        options.CustomSchemaIds(type => type.FullName);
+
+        //        // https://rapidocweb.com/api.html#vendor-extensions
+        //        var oauth2SecurityScheme = options.SwaggerGeneratorOptions.SecuritySchemes.GetOrDefault("oauth2");
+        //        if (oauth2SecurityScheme != null)
+        //        {
+        //            oauth2SecurityScheme.Extensions = new Dictionary<string, Microsoft.OpenApi.Interfaces.IOpenApiExtension>()
+        //            {
         //                 {"x-client-id", new Microsoft.OpenApi.Any.OpenApiString("RapiDocDemo_RapiDoc")},
         //                 // {"x-client-secret", new Microsoft.OpenApi.Any.OpenApiString("1q2w3e")},
         //                 {"x-default-scopes", new Microsoft.OpenApi.Any.OpenApiString("RapiDocDemo")},
-        //             };
-        //         }
-        //     }
-        // );
+        //            };
+        //        }
+        //    }
+        //);
     }
 
     private void ConfigureAutoMapper(ServiceConfigurationContext context)
